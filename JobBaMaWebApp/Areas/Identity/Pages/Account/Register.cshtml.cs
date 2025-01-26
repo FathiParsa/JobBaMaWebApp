@@ -10,6 +10,7 @@ using System.Text;
 using System.Text.Encodings.Web;
 using System.Threading;
 using System.Threading.Tasks;
+using JobBaMaWebApp.Constants;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -97,6 +98,9 @@ namespace JobBaMaWebApp.Areas.Identity.Pages.Account
             [Display(Name = "Confirm password")]
             [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
             public string ConfirmPassword { get; set; }
+
+            [Required]
+            public bool IsJobSeeker { get; set; }
         }
 
 
@@ -121,6 +125,15 @@ namespace JobBaMaWebApp.Areas.Identity.Pages.Account
                 if (result.Succeeded)
                 {
                     _logger.LogInformation("User created a new account with password.");
+
+                    if (Input.IsJobSeeker)
+                    {
+                        await _userManager.AddToRoleAsync(user, Roles.JobSeeker);
+                    }
+                    else
+                    {
+                        await _userManager.AddToRoleAsync(user, Roles.Employer);
+                    }
 
                     var userId = await _userManager.GetUserIdAsync(user);
                     var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
