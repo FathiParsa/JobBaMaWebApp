@@ -1,0 +1,23 @@
+﻿@model IEnumerable<JobPosting> 
+
+@{
+	Layout = "_Layout";
+	ViewData["Title"] = "جا با ما";
+}
+
+
+<h1>مشاغل</h1>
+
+<div class="list-group">
+
+	@foreach (var jobPosting in Model)
+	{
+		<div class="list-group-item">
+			<h3 >@jobPosting.Title</h3>
+			<p>@jobPosting.Description</p>
+			<p><strong>شرکت : </strong>@jobPosting.Company</p>
+			<p><strong>مکان : </strong>@jobPosting.Location</p>
+		</div>
+	}
+
+</div>
