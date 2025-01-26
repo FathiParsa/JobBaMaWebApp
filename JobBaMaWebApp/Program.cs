@@ -1,4 +1,6 @@
 using JobBaMaWebApp.Data;
+using JobBaMaWebApp.Models;
+using JobBaMaWebApp.Repositories;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -25,22 +27,24 @@ namespace JobBaMaWebApp
                 .AddRoles<IdentityRole>()
                 .AddEntityFrameworkStores<ApplicationDbContext>();
 
+            builder.Services.AddScoped<IRepository<JobPosting>, JobPostingRepository>();
+
             var app = builder.Build();
 
             using (var scope = app.Services.CreateScope())
             {
                 var services = scope.ServiceProvider;
-                 RoleSeeder.SeedRolesAsync(services).Wait();
+                RoleSeeder.SeedRolesAsync(services).Wait();
                 UserSeeder.SeedUsersAsync(services).Wait();
             }
 
-                // Configure the HTTP request pipeline.
-                if (!app.Environment.IsDevelopment())
-                {
-                    app.UseExceptionHandler("/Home/Error");
-                    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-                    app.UseHsts();
-                }
+            // Configure the HTTP request pipeline.
+            if (!app.Environment.IsDevelopment())
+            {
+                app.UseExceptionHandler("/Home/Error");
+                // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+                app.UseHsts();
+            }
 
             app.UseHttpsRedirection();
             app.UseRouting();
