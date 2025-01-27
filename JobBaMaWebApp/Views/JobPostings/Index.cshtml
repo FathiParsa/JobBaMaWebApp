@@ -1,4 +1,5 @@
-﻿@model IEnumerable<JobPosting> 
+﻿@using JobBaMaWebApp.Constants
+@model IEnumerable<JobPosting>
 
 @{
 	Layout = "_Layout";
@@ -12,12 +13,42 @@
 
 	@foreach (var jobPosting in Model)
 	{
-		<div class="list-group-item">
-			<h3 >@jobPosting.Title</h3>
+		<div class="list-group-item" id="jobPosting-@jobPosting.Id">
+			<h3>@jobPosting.Title</h3>
 			<p>@jobPosting.Description</p>
 			<p><strong>شرکت : </strong>@jobPosting.Company</p>
 			<p><strong>مکان : </strong>@jobPosting.Location</p>
+
+			@if (User.IsInRole(Roles.Admin) || User.IsInRole(Roles.Employer))
+			{
+				<div id="jobPosting-@jobPosting.Id">
+					<button class="btn btn-danger" onclick="deleteJobPosting(@jobPosting.Id)">حذف</button>
+				</div>
+			}
+
 		</div>
 	}
 
 </div>
+
+@section Scripts {
+	<script>
+		function deleteJobPosting(id){
+
+			if(confirm("آیا از حذف مطمعن هستید؟")){
+
+				$.ajax({
+					url : "@Url.Action("Delete", "JobPostings")/" + id,
+					type : "delete" ,
+					success : function (result) {
+						$("#jobPosting-" + id ).remove();
+					},
+					error : function (err){
+						alert("خطایی رخ داده است");
+					}
+				});
+
+			}
+		}
+	</script>
+}

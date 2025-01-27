@@ -1,11 +1,13 @@
 ﻿using JobBaMaWebApp.Models;
 using JobBaMaWebApp.Repositories;
 using JobBaMaWebApp.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace JobBaMaWebApp.Controllers
 {
+    [Authorize]
     public class JobPostingsController : Controller
     {
         private readonly IRepository<JobPosting> _repository;
@@ -18,6 +20,7 @@ namespace JobBaMaWebApp.Controllers
             _repository = repository;
             _userManager = userManager;
         }
+        [AllowAnonymous]
         public async Task<IActionResult> Index()
         {
             var jobPostings = await _repository.GetAllAsync();
@@ -30,6 +33,7 @@ namespace JobBaMaWebApp.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "Admin,Employer")]
         public async Task<IActionResult> Create(JobPostingViewModel jobPostingViewModel)
         {
             if (ModelState.IsValid)
@@ -47,6 +51,13 @@ namespace JobBaMaWebApp.Controllers
                 return RedirectToAction(nameof(Index));
             }
             return View(jobPostingViewModel);
+        }
+
+        [HttpDelete]
+
+        public async Task<IActionResult> Delete(int id)
+        {
+            return Ok();
         }
     }
 }
