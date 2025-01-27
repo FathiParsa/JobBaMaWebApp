@@ -1,4 +1,5 @@
-﻿using JobBaMaWebApp.Models;
+﻿using JobBaMaWebApp.Constants;
+using JobBaMaWebApp.Models;
 using JobBaMaWebApp.Repositories;
 using JobBaMaWebApp.ViewModels;
 using Microsoft.AspNetCore.Authorization;
@@ -24,6 +25,13 @@ namespace JobBaMaWebApp.Controllers
         public async Task<IActionResult> Index()
         {
             var jobPostings = await _repository.GetAllAsync();
+
+            if (User.IsInRole(Roles.Employer))
+            {
+                var userId = _userManager.GetUserId(User);
+                var filteredJobPostings = jobPostings.Where(x => x.UserId == userId);
+                return View(filteredJobPostings);
+            }
             return View(jobPostings);
         }
 
@@ -57,6 +65,20 @@ namespace JobBaMaWebApp.Controllers
 
         public async Task<IActionResult> Delete(int id)
         {
+            var jobPosting =  await _repository.GetByIdAsync(id);
+            var userId = _userManager.GetUserId(User);
+
+            if (jobPosting == null)
+            {
+                return NotFound();
+            }
+
+            if (User.IsInRole(Roles.Admin) == false && jobPosting.UserId != userId)
+            {
+                return Forbid();
+            }
+            await _repository.DeleteAsync(id);
+
             return Ok();
         }
     }
